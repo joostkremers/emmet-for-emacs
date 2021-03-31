@@ -1,14 +1,15 @@
-;;; emmet-mode.el --- Unofficial Emmet's support for emacs
+;;; emmet-mode.el --- Unofficial Emmet support for Emacs  -*- lexical-binding: t -*-
 
+;; Copyright (C) 2021-     Joost Kremers      (@joostkremers https://github.com/joostkremers)
 ;; Copyright (C) 2014-     Dmitry Mukhutdinov (@flyingleafe  https://github.com/flyingleafe)
 ;; Copyright (C) 2014-     William David Mayo (@pbocks       https://github.com/pobocks)
 ;; Copyright (C) 2013-     Shin Aoyama        (@smihica      https://github.com/smihica)
 ;; Copyright (C) 2009-2012 Chris Done
 
-;; Version: 1.0.10
 ;; Author: Shin Aoyama <smihica@gmail.com>
-;; URL: https://github.com/smihica/emmet-mode
-;; Last-Updated: 2014-08-11 Mon
+;; Maintainer: Joost Kremers <joostkremers@fastmail.fm>
+;; URL: https://github.com/joostkremers/emmet-for-emacs
+;; Version: 2.0
 ;; Keywords: convenience
 
 ;; This file is free software; you can redistribute it and/or modify
