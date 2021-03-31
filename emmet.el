@@ -11,6 +11,7 @@
 ;; URL: https://github.com/joostkremers/emmet-for-emacs
 ;; Version: 2.0
 ;; Keywords: convenience
+;; Package-Requires: ((emacs "27.1"))
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
