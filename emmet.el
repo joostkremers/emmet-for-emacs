@@ -74,11 +74,6 @@
 (with-no-warnings
   (require 'cl))
 
-;; for portability with < 24.3 EMACS
-(unless (fboundp 'cl-labels) (fset 'cl-labels 'labels))
-(unless (fboundp 'cl-flet)   (fset 'cl-flet   'flet))
-;; < 22.1
-(unless (fboundp 'string-to-number) (fset 'string-to-number 'string-to-int))
 
 (defmacro emmet-defparameter (symbol &optional initvalue docstring)
   `(progn
