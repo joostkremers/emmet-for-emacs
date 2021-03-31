@@ -709,10 +709,16 @@ See `emmet-preview-online'."
 The contents of PATH is returned as a hash table.  JSON `null' is
 converted to nil."
   (condition-case err
-      (with-temp-buffer
-        (insert-file-contents path)
-        (goto-char (point-min))
-        (json-parse-buffer :false-object nil))
+      (if (fboundp 'json-parse-buffer)
+          (with-temp-buffer
+            (insert-file-contents path)
+            (goto-char (point-min))
+            (json-parse-buffer :false-object nil))
+        ;; Fall back on `json.el'.
+        (require 'json)
+        (let ((json-object-type 'hash-table)
+              (json-false nil))
+          (json-read-file path)))
     (json-parse-error
      (message "[Emmet] Invalid JSON in `%s'" (file-name-nondirectory path)))
     (error (signal (car err) (cdr err)))))
