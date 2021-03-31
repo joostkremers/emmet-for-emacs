@@ -1,86 +1,78 @@
+[Emmet](https://emmet.io/) describes itself as "a plugin for many popular text editors which greatly improves HTML & CSS workflow". `emmet-for-emacs` is an implementation of Emmet in Emacs. It is a fork of [`emmet-mode`](https://github.com/smihica/emmet-mode), which is itself a fork of [zencoding-mode](https://github.com/rooney/zencoding).
 
-__This is a fork of [zencoding-mode](https://github.com/rooney/zencoding) to support [Emmet](http://emmet.io/)'s feature set.__
+
 
 ## About zencoding-mode
 
 [zencoding-mode](https://github.com/rooney/zencoding) is a minor mode providing support for Zen Coding by producing HTML from CSS-like selectors. See [README](https://github.com/rooney/zencoding/blob/master/README.md)
 
 ## About Emmet
-Zen Coding has been renamed to [Emmet](http://emmet.io/) and includes an expanded feature set.
 
-## Abbreviation Examples
+Emmet makes writing HTML code easier by producing HTML from CSS-like selectors. For example, you can write a line like
 
-- [HTML abbreviations](https://github.com/smihica/emmet#html-abbreviations)
-- [CSS abbreviations](https://github.com/smihica/emmet#css-abbreviations)
+    ul#name>li.item*2
 
-## Emmet Actions
+and have it expanded to
 
-- [Go to Edit Point](https://github.com/smihica/emmet#go-to-edit-point)
+```
+  <ul id="name">
+    <li class="item"></li>
+    <li class="item"></li>
+  </ul>
+```
+
+`emmet-for-emacs` supports [HTML](#html-abbreviations) and [CSS abbreviations](#css-abbreviations), and the [Goto Edit Point](#go-to-edit-point) action.
 
 ## Supported Emacs
 
-`emmet-mode` is supported by GNU Emacs versions from 23 onward.
+`emmet` requires at least GNU Emacs versions from 26.1.
 
 ## Installation
 
-### 1. From marmalade or MELPA
+You can install `emmet-for-emacs` by placing `emmet.el` in your `load-path`. It is advisable to byte-compile it. For example, if you placed `emmet.el` in `~/src/Elisp/emmet-for-emacs/`, add the following lines to your init.el or .emacs:
 
-If your Emacs has the [marmalade](http://marmalade-repo.org/) or [MELPA](http://melpa.milkbox.net/) package repositories installed, just type `M-x package-list-packages`, search for `emmet-mode`, and install it.
+    (add-to-list 'load-path "~/src/Elisp/emmet-for-emacs")
+    (require 'emmet)
 
-### 1. Manual Installation
-
-Just make sure emmet-mode.el is in your `load-path`.
-
-### 2. Settings to use.
-
-If you manually installed emmet-mode to `~/emacs.d/emmet-mode/`, add the following lines to your init.el or .emacs:
-
-    (add-to-list 'load-path "~/emacs.d/emmet-mode")
-    (require 'emmet-mode)
-
-If you installed from marmalade/MELPA then these you shouldn't need to do this.
-
-Enable it by running `M-x emmet-mode`.
-
-### 3. Optional settings
-
-You probably want to add it to auto-load on your sgml modes:
+You can enable `emmet-for-emacs` by running `M-x emmet-mode` manually, but you will probably want to add it to auto-load on your sgml modes:
 
     (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
     (add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbreviation.
 
 By default, inserted markup will be indented with indent-region, according to the buffer's mode.  To disable this, do:
 
-    (add-hook 'emmet-mode-hook (lambda () (setq emmet-indent-after-insert nil)))
+    (setq-default emmet-indent-after-insert nil)
 
-If you disable indent-region, you can set the default indent level thusly:
+If you disable indent-region, you can set the default indent level thus:
 
-    (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent 2 spaces.
+    (setq-default emmet-indentation 2)
 
 If you want the cursor to be positioned between first empty quotes after expanding:
 
-    (setq emmet-move-cursor-between-quotes t) ;; default nil
+    (setq-default emmet-move-cursor-between-quotes t)
 
 Or if you don't want to move cursor after expanding:
 
-    (setq emmet-move-cursor-after-expanding nil) ;; default t
+    (setq-default emmet-move-cursor-after-expanding nil)
 
 If you want to use emmet with react-js's JSX, you probably want emmet to expand 'className="..."' instead of 'class="..."':
 
-    (setq emmet-expand-jsx-className? t) ;; default nil
+    (setq-default emmet-expand-jsx-className? t)
 
-If you want to customize Self-closing tags style:
+If you want to customize self-closing tags style:
 
-    (setq emmet-self-closing-tag-style " /") ;; default "/"
+    (setq-default emmet-self-closing-tag-style " /")
 
     ;; only " /", "/" and "" are valid.
     ;; eg. <meta />, <meta/>, <meta>
 
+All customisation options can be found in the customisation group `emmet`.
+
+
 ## Usage
 
-Place point in a emmet snippet and press C-j to expand it (or alternatively,
-alias your preferred keystroke to M-x emmet-expand-line) and
-you'll transform your snippet into the appropriate tag structure.
+Place point in a emmet snippet and press `C-j` to expand it (or alternatively,
+alias your preferred keystroke to `M-x emmet-expand-line`) and you'll transform your snippet into the appropriate tag structure.
 
 ## HTML abbreviations
 
@@ -562,13 +554,15 @@ Traverse between important code points in HTML.
 
 For further information and demo see [Emmet's documentation](http://docs.emmet.io/actions/go-to-edit-point/).
 
-## Development Notes
 
-When working on emmet-mode, DO NOT directly edit `emmet-mode.el`.  It is generated from the files in the `/src` directory by `make`.  When making changes, make them to the relevant source file, then run:
+# Why a fork? #
 
-```sh
-make clean
-make
-```
+This for was initially inspired by the fact that `emmet-mode` uses the `cl` library, which is deprecated as of Emacs 27.1. Moreover, the repository saw its last commit in June 2018, almost three years ago at the time of writing, issues on Github seem to go unanswered and @smihica [has mentioned](https://github.com/smihica/emmet-mode/issues/99) that they themself do not use the package anymore.
 
-in the root directory of your emmet-mode repository.
+This fork is currently for personal use. I cannot foresee right now if and how long I will be maintaining it in the future.
+
+Currently, the main changes to the code are the following:
+
+- Remove the dependency on `cl` and replace it with `cl-lib`.
+- Use `emmet.el` (formerly `emmet-mode.el`) as the source file rather than generating it from the files in `src/`.
+- Parse `preferences.json` and `snippets.json` in Elisp using Emacs 27's native JSON support or, if that is unavailable, `json.el`.
