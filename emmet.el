@@ -71,13 +71,6 @@
 
 (defconst emmet--version "2.0")
 
-
-(defmacro emmet-defparameter (symbol &optional initvalue docstring)
-  `(progn
-     (defvar ,symbol nil ,docstring)
-     (setq   ,symbol ,initvalue)))
-
-
 (require 'cl-lib)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -711,7 +704,7 @@ See `emmet-preview-online'."
 ;; src/snippets.el
 ;; This file is generated from conf/snippets.json
 ;; Don't edit.
-(emmet-defparameter emmet-snippets
+(defvar emmet-snippets
 (let ((tbl (make-hash-table :test 'equal)))
 (puthash "css" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "snippets" (let ((tbl (make-hash-table :test 'equal)))
@@ -1497,7 +1490,7 @@ tbl))
 ;; src/preferences.el
 ;; This file is generated from conf/preferences.json
 ;; Don't edit.
-(emmet-defparameter emmet-preferences
+(defvar emmet-preferences
 (let ((tbl (make-hash-table :test 'equal)))
 (puthash "css" (let ((tbl (make-hash-table :test 'equal)))
 (puthash "color" (let ((tbl (make-hash-table :test 'equal)))
@@ -3045,7 +3038,7 @@ tbl))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; XML abbrev
 
-(emmet-defparameter
+(defvar
  emmet-tag-aliases-table
  (gethash "aliases" (gethash "html" emmet-snippets)))
 
@@ -3473,13 +3466,13 @@ tbl))
 (defvar emmet-expand-jsx-className? nil
   "Wether to use `className' when expanding `.classes'")
 
-(emmet-defparameter
+(defvar
  emmet-tag-settings-table
  (gethash "tags" (gethash "html" emmet-preferences)))
 
-(emmet-defparameter
- emmet-tag-snippets-table
- (gethash "snippets" (gethash "html" emmet-snippets)))
+(defvar
+  emmet-tag-snippets-table
+  (gethash "snippets" (gethash "html" emmet-snippets)))
 
 (defvar emmet-filters
   '("html" (emmet-primary-filter emmet-make-html-tag)
@@ -3878,9 +3871,9 @@ tbl))
 ;;
 ;;; CSS abbrev:
 
-(emmet-defparameter
- emmet-css-unit-aliases
- (gethash "unitAliases" (gethash "css" emmet-preferences)))
+(defvar
+  emmet-css-unit-aliases
+  (gethash "unitAliases" (gethash "css" emmet-preferences)))
 (defun emmet-css-arg-number (input)
   (emmet-parse
    " *\\(\\(?:-\\|\\)[0-9.]+\\)\\(-\\|[A-Za-z]*\\)" 3 "css number arguments"
@@ -3891,15 +3884,15 @@ tbl))
                    (gethash unit emmet-css-unit-aliases unit))))
          input)))
 
-(emmet-defparameter
- emmet-css-color-shorten-if-possible
- (gethash "shortenIfPossible" (gethash "color" (gethash "css" emmet-preferences))))
-(emmet-defparameter
- emmet-css-color-case
- (gethash "case" (gethash "color" (gethash "css" emmet-preferences))))
-(emmet-defparameter
- emmet-css-color-trailing-aliases
- (gethash "trailingAliases" (gethash "color" (gethash "css" emmet-preferences))))
+(defvar
+  emmet-css-color-shorten-if-possible
+  (gethash "shortenIfPossible" (gethash "color" (gethash "css" emmet-preferences))))
+(defvar
+  emmet-css-color-case
+  (gethash "case" (gethash "color" (gethash "css" emmet-preferences))))
+(defvar
+  emmet-css-color-trailing-aliases
+  (gethash "trailingAliases" (gethash "color" (gethash "css" emmet-preferences))))
 (defun emmet-css-arg-color (input)
   (emmet-parse
    (concat " *#\\([0-9a-fA-F]\\{1,6\\}\\)\\(rgb\\|\\)\\(["
@@ -4017,23 +4010,23 @@ tbl))
   (mapcar #'emmet-css-subexpr
           (emmet-css-toknize input)))
 
-(emmet-defparameter
- emmet-css-snippets
- (gethash "snippets" (gethash "css" emmet-snippets)))
+(defvar
+  emmet-css-snippets
+  (gethash "snippets" (gethash "css" emmet-snippets)))
 
-(emmet-defparameter
- emmet-sass-snippets
- (gethash "snippets" (gethash "sass" emmet-snippets)))
+(defvar
+  emmet-sass-snippets
+  (gethash "snippets" (gethash "sass" emmet-snippets)))
 
-(emmet-defparameter
- emmet-css-unitless-properties
- (gethash "unitlessProperties" (gethash "css" emmet-preferences)))
+(defvar
+  emmet-css-unitless-properties
+  (gethash "unitlessProperties" (gethash "css" emmet-preferences)))
 
-(emmet-defparameter
- emmet-css-unitless-properties-regex
- (concat "^\\(:?" (string-join
-                   emmet-css-unitless-properties "\\|")
-         "\\):.*$"))
+(defvar
+  emmet-css-unitless-properties-regex
+  (concat "^\\(:?" (string-join
+                    emmet-css-unitless-properties "\\|")
+          "\\):.*$"))
 
 (defun emmet-css-instantiate-lambda (str)
   (cl-flet ((insert-space-between-name-and-body
@@ -4073,12 +4066,12 @@ tbl))
                              (nthcdr ,idx-max ,args) " "))))
               ,body)))))))
 
-(emmet-defparameter
- emmet-vendor-prefixes-properties
- (gethash "vendorPrefixesProperties" (gethash "css" emmet-preferences)))
-(emmet-defparameter
- emmet-vendor-prefixes-default
- (list "webkit" "moz" "ms" "o"))
+(defvar
+  emmet-vendor-prefixes-properties
+  (gethash "vendorPrefixesProperties" (gethash "css" emmet-preferences)))
+(defvar
+  emmet-vendor-prefixes-default
+  (list "webkit" "moz" "ms" "o"))
 (defun emmet-css-transform-vendor-prefixes (line vp)
   (let ((key (cl-subseq line 0 (or (cl-position ?: line) (length line)))))
     (let ((vps (if (eql vp 'auto)
