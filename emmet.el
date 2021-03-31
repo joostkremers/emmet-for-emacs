@@ -85,8 +85,6 @@
      (defvar ,symbol nil ,docstring)
      (setq   ,symbol ,initvalue)))
 
-(defun emmet-join-string (lis joiner)
-  (mapconcat 'identity lis joiner))
 
 (defun emmet-get-keys-of-hash (hash)
   (let ((ks nil))
@@ -3592,12 +3590,12 @@ tbl))
             (if b
                 `(lambda (contents)
                    (concat
-                    ,(emmet-join-string (reverse a) "\n")
+                    ,(string-join (reverse a) "\n")
                     contents
-                    ,(emmet-join-string (reverse b) "\n")))
+                    ,(string-join (reverse b) "\n")))
               `(lambda (contents)
                  (concat
-                  ,(emmet-join-string (reverse a) "\n")
+                  ,(string-join (reverse a) "\n")
                   contents))))))
       (eval (iter lines 'a nil nil)))))
 
@@ -3887,7 +3885,7 @@ tbl))
                        (if (string-equal (substring l -1) ",")
                            (append (subseq w 0 -1) (list (substring l 0 -1)))
                          w)))))
-        (concat (emmet-upcase-first (emmet-join-string words " ")) last
+        (concat (emmet-upcase-first (string-join words " ")) last
                 (let ((next (emmet-lorem-generate (- count sl))))
                   (if (string-equal next "") ""
                     (concat " " next))))))))
@@ -3921,13 +3919,13 @@ tbl))
 (defun emmet-css-arg-color (input)
   (emmet-parse
    (concat " *#\\([0-9a-fA-F]\\{1,6\\}\\)\\(rgb\\|\\)\\(["
-           (emmet-join-string
+           (string-join
             (emmet-get-keys-of-hash emmet-css-color-trailing-aliases) "")
            "]\\|\\)")
    4 "css color argument"
    (let ((color
           (let* ((n (elt it 1))
-                (l (length n)))
+                 (l (length n)))
             (substring
              (cond ((= l 1) (concat (make-list 6 (string-to-char n))))
                    ((= l 2) (concat n n n))
@@ -4049,36 +4047,36 @@ tbl))
 
 (emmet-defparameter
  emmet-css-unitless-properties-regex
- (concat "^\\(:?" (emmet-join-string
+ (concat "^\\(:?" (string-join
                    emmet-css-unitless-properties "\\|")
          "\\):.*$"))
 
 (defun emmet-css-instantiate-lambda (str)
   (cl-flet ((insert-space-between-name-and-body
-          (str)
-          (if (string-match "^\\([a-z-]+:\\)\\(.+\\)$" str)
-              (emmet-join-string
-               (mapcar (lambda (ref) (match-string ref str)) '(1 2)) " ")
-            str))
-         (split-string-to-body
-          (str args-sym)
-          (let ((rt '(concat)) (idx-max 0))
-            (loop for i from 0 to 255 do
-                  (emmet-aif
-                   (string-match "\\(?:|\\|${\\(?:\\([0-9]\\)\\|\\)\\(?::\\(.+?\\)\\|\\)}\\)" str)
-                   (destructuring-bind (mat idx def)
-                       (mapcar (lambda (ref) (match-string ref str)) '(0 1 2))
-                     (setf rt
-                           `((or
-                              (nth ,(let ((cur-idx (if idx (1- (string-to-number idx)) i)))
-                                      (setf idx-max (max cur-idx idx-max)))
-                                   ,args-sym)
-                              ,(or def ""))
-                             ,(substring str 0 it) ;; ordered to reverse
-                             ,@rt))
-                     (setf str (substring str (+ it (length mat)))))
-                   ;; don't use nreverse. cause bug in emacs-lisp.
-                   (return (cons idx-max (reverse (cons str rt)))))))))
+             (str)
+             (if (string-match "^\\([a-z-]+:\\)\\(.+\\)$" str)
+                 (string-join
+                  (mapcar (lambda (ref) (match-string ref str)) '(1 2)) " ")
+               str))
+            (split-string-to-body
+             (str args-sym)
+             (let ((rt '(concat)) (idx-max 0))
+               (loop for i from 0 to 255 do
+                     (emmet-aif
+                      (string-match "\\(?:|\\|${\\(?:\\([0-9]\\)\\|\\)\\(?::\\(.+?\\)\\|\\)}\\)" str)
+                      (destructuring-bind (mat idx def)
+                          (mapcar (lambda (ref) (match-string ref str)) '(0 1 2))
+                        (setf rt
+                              `((or
+                                 (nth ,(let ((cur-idx (if idx (1- (string-to-number idx)) i)))
+                                         (setf idx-max (max cur-idx idx-max)))
+                                      ,args-sym)
+                                 ,(or def ""))
+                                ,(substring str 0 it) ;; ordered to reverse
+                                ,@rt))
+                        (setf str (substring str (+ it (length mat)))))
+                      ;; don't use nreverse. cause bug in emacs-lisp.
+                      (return (cons idx-max (reverse (cons str rt)))))))))
     (let ((args (gensym))
           (str  (insert-space-between-name-and-body str)))
       (destructuring-bind (idx-max . body) (split-string-to-body str args)
@@ -4087,7 +4085,7 @@ tbl))
             (progn
               (when (nthcdr ,idx-max ,args)
                 (setf (nthcdr ,idx-max ,args)
-                      (list (emmet-join-string
+                      (list (string-join
                              (nthcdr ,idx-max ,args) " "))))
               ,body)))))))
 
@@ -4109,13 +4107,13 @@ tbl))
                                  ((= v ?s) "ms")
                                  ((= v ?o) "o")))
                          vp))))
-      (emmet-join-string
+      (string-join
        (append (mapcar (lambda (v) (concat "-" v "-" line)) vps)
                (list line))
        "\n"))))
 
 (defun emmet-css-transform-exprs (exprs)
-  (emmet-join-string
+  (string-join
    (mapcar
     #'(lambda (expr)
         (let*
@@ -4148,7 +4146,7 @@ tbl))
 			       arg))
 			 (cdddr expr))))
 	       (concat (car expr) ": "
-		       (emmet-join-string
+		       (string-join
 			(mapcar #'(lambda (arg)
 				    (if (listp arg) (apply #'concat arg) arg))
 				(cdddr expr)) " ")
