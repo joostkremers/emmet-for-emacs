@@ -701,11 +701,40 @@ See `emmet-preview-online'."
     (error "First edit point reached.")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Default configuration
+
+(defun emmet-read-json (path)
+  "Read the JSON file PATH.
+The contents of PATH is returned as a hash table.  JSON `null' is
+converted to nil."
+  (condition-case err
+      (with-temp-buffer
+        (insert-file-contents path)
+        (goto-char (point-min))
+        (json-parse-buffer :false-object nil))
+    (json-parse-error
+     (message "[Emmet] Invalid JSON in `%s'" (file-name-nondirectory path)))
+    (error (signal (car err) (cdr err)))))
+
+(defconst emmet-default-conf-dir
+  (file-name-as-directory
+   (expand-file-name "conf"
+                     (file-name-directory (or load-file-name buffer-file-name))))
+  "Default configuration directory.
+This is the default directory for `preferences.json' and `snippets.json'.")
+
+(defvar emmet-snippets (emmet-read-json (expand-file-name "snippets.json" emmet-default-conf-dir))
+  "Hash table containing `conf/snippets.json'.")
+
+(defvar emmet-preferences (emmet-read-json (expand-file-name "preferences.json" emmet-default-conf-dir))
+  "Hash table containing `conf/preferences.json'.")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; XML abbrev
 
 (defvar
- emmet-tag-aliases-table
- (gethash "aliases" (gethash "html" emmet-snippets)))
+  emmet-tag-aliases-table
+  (gethash "aliases" (gethash "html" emmet-snippets)))
 
 (defun emmet-expr (input)
   "Parse a zen coding expression with optional filters."
