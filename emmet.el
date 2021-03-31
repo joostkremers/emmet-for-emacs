@@ -86,15 +86,6 @@
      (setq   ,symbol ,initvalue)))
 
 
-(defun emmet-get-keys-of-hash (hash)
-  (let ((ks nil))
-    (maphash #'(lambda (k v) (setq ks (cons k ks))) hash)
-    ks))
-
-(defun emmet-get-vals-of-hash (hash)
-  (let ((vs nil))
-    (maphash #'(lambda (k v) (setq vs (cons v vs))) hash)
-    vs))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
@@ -3920,7 +3911,7 @@ tbl))
   (emmet-parse
    (concat " *#\\([0-9a-fA-F]\\{1,6\\}\\)\\(rgb\\|\\)\\(["
            (string-join
-            (emmet-get-keys-of-hash emmet-css-color-trailing-aliases) "")
+            (hash-table-keys emmet-css-color-trailing-aliases) "")
            "]\\|\\)")
    4 "css color argument"
    (let ((color
