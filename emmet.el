@@ -128,6 +128,7 @@ and leaving the point in place."
       (mapcar (lambda (ref) (match-string ref string))
               (if (sequencep refs) refs (list refs)))
     nil))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Emmet minor mode
 
