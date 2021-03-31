@@ -700,7 +700,6 @@ See `emmet-preview-online'."
   (unless (or emmet-use-css-transform (emmet-go-to-edit-point (- count)))
     (error "First edit point reached.")))
 
-(provide 'emmet-mode)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; XML abbrev
 
@@ -1811,4 +1810,6 @@ See `emmet-preview-online'."
 (defun emmet-css-transform (input)
   (emmet-css-transform-exprs (emmet-css-expr input)))
 
-;;; emmet-mode.el ends here
+(provide 'emmet)
+
+;;; emmet.el ends here
