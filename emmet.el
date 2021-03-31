@@ -71,9 +71,6 @@
 
 (defconst emmet--version "2.0")
 
-(with-no-warnings
-  (require 'cl))
-
 
 (defmacro emmet-defparameter (symbol &optional initvalue docstring)
   `(progn
@@ -81,6 +78,7 @@
      (setq   ,symbol ,initvalue)))
 
 
+(require 'cl-lib)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
@@ -678,7 +676,7 @@ See `emmet-preview-online'."
                            to-wrap
                            "+")))
          (markup
-          (reduce
+          (cl-reduce
            (lambda (result text)
              (replace-regexp-in-string
               (concat "!!!" (secure-hash 'sha1 text) "!!!")
@@ -3137,7 +3135,7 @@ tbl))
                       `(,prefix ,(car res) ,@(iter (cdr res))))))
                 (list input))))
     (let ((res (iter input)))
-      (if (every #'stringp res)
+      (if (cl-every #'stringp res)
           (apply #'concat res)
         `(numberings ,@res)))))
 
@@ -3234,9 +3232,9 @@ tbl))
   (let ((tag-data (cadr tag)))
     (let ((tag-name (car tag-data)))
       (emmet-aif (emmet-lorem tag-name)
-                 (if (equalp (cdr tag-data) '(t nil nil nil nil))
+                 (if (cl-equalp (cdr tag-data) '(t nil nil nil nil))
                      `((text (lorem ,it)) . ,input)
-                   `((tag ("div" ,@(subseq tag-data 1 -1) (lorem ,it))) . ,input))))))
+                   `((tag ("div" ,@(cl-subseq tag-data 1 -1) (lorem ,it))) . ,input))))))
 
 (defun emmet-expand-tag-alias (tag input)
   (let ((tag-data (cadr tag)))
@@ -3252,11 +3250,11 @@ tbl))
                  (setf (second first-tag-data) (second tag-data))
                  (setf (third first-tag-data)  (third tag-data))
                  (setf (fourth first-tag-data)
-                       (remove-duplicates
+                       (cl-remove-duplicates
                         (append (fourth first-tag-data)
                                 (fourth tag-data)) :test #'string=))
                  (setf (fifth first-tag-data)
-                       (remove-duplicates
+                       (cl-remove-duplicates
                         (append (fifth first-tag-data)
                                 (fifth tag-data))
                         :test #'(lambda (p1 p2)
@@ -3847,7 +3845,7 @@ tbl))
          (f (+ s count))
          (e (if (< l f) l f)))
     (append
-     (subseq emmet-lorem-words s e)
+     (cl-subseq emmet-lorem-words s e)
      (if (= e l) (emmet-lorem-choice-words (- f l) 0)))))
 
 (defvar emmet-lorem-min-sentence 5)
@@ -3855,7 +3853,7 @@ tbl))
 (defvar emmet-lorem-max-sentence 30)
 
 (defun emmet-upcase-first (s)
-  (concat (upcase (subseq s 0 1)) (subseq s 1)))
+  (concat (upcase (cl-subseq s 0 1)) (cl-subseq s 1)))
 
 (defun emmet-lorem-generate (count)
   (if (<= count 0) ""
@@ -3869,7 +3867,7 @@ tbl))
       (let ((words (let ((w (emmet-lorem-choice-words sl)))
                      (let ((l (car (last w))))
                        (if (string-equal (substring l -1) ",")
-                           (append (subseq w 0 -1) (list (substring l 0 -1)))
+                           (append (cl-subseq w 0 -1) (list (substring l 0 -1)))
                          w)))))
         (concat (emmet-upcase-first (string-join words " ")) last
                 (let ((next (emmet-lorem-generate (- count sl))))
@@ -3889,7 +3887,7 @@ tbl))
    (cons (list (elt it 1)
                (let ((unit (elt it 2)))
                  (if (= (length unit) 0)
-                     (if (find ?. (elt it 1)) "em" "px")
+                     (if (cl-find ?. (elt it 1)) "em" "px")
                    (gethash unit emmet-css-unit-aliases unit))))
          input)))
 
@@ -3986,14 +3984,14 @@ tbl))
          (let ((vp (elt it 1)))
            (if (not (string= vp ""))
                (if (string= vp "-") 'auto
-                 (string-to-list (subseq vp 1 -1))))))))
+                 (string-to-list (cl-subseq vp 1 -1))))))))
 
 (defun emmet-css-subexpr (exp)
   (let* ((importantp (emmet-css-important-p exp)))
     (destructuring-bind (exp vp)
         (emmet-css-split-vendor-prefixes exp)
       (destructuring-bind (key args)
-          (emmet-css-split-args (if importantp (subseq exp 0 -1) exp))
+          (emmet-css-split-args (if importantp (cl-subseq exp 0 -1) exp))
         `(,key ,vp
                ,importantp
                ,@(emmet-css-parse-args args))))))
@@ -4082,7 +4080,7 @@ tbl))
  emmet-vendor-prefixes-default
  (list "webkit" "moz" "ms" "o"))
 (defun emmet-css-transform-vendor-prefixes (line vp)
-  (let ((key (subseq line 0 (or (position ?: line) (length line)))))
+  (let ((key (cl-subseq line 0 (or (cl-position ?: line) (length line)))))
     (let ((vps (if (eql vp 'auto)
                    (gethash key
                             emmet-vendor-prefixes-properties
@@ -4139,11 +4137,11 @@ tbl))
 		       ";"))))
           (let ((line
                  (if (caddr expr)
-                     (concat (subseq basement 0 -1) " !important;")
+                     (concat (cl-subseq basement 0 -1) " !important;")
                    basement)))
 	    ;; remove trailing semicolon while editing Sass files
-	    (if (and emmet-use-sass-syntax (equal ";" (subseq line -1)))
-		(setq line (subseq line 0 -1)))
+	    (if (and emmet-use-sass-syntax (equal ";" (cl-subseq line -1)))
+		(setq line (cl-subseq line 0 -1)))
             (emmet-aif
              (cadr expr)
              (emmet-css-transform-vendor-prefixes line it)
