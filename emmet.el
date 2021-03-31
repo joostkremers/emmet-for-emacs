@@ -68,7 +68,7 @@
 ;;
 ;;; Code:
 
-(defconst emmet-mode:version "1.0.10")
+(defconst emmet--version "2.0")
 
 (with-no-warnings
   (require 'cl))
