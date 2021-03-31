@@ -1,4 +1,4 @@
-;;; emmet-mode.el --- Unofficial Emmet support for Emacs  -*- lexical-binding: t -*-
+;;; emmet.el --- Unofficial Emmet support for Emacs  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2021-     Joost Kremers      (@joostkremers https://github.com/joostkremers)
 ;; Copyright (C) 2014-     Dmitry Mukhutdinov (@flyingleafe  https://github.com/flyingleafe)
@@ -32,19 +32,19 @@
 ;;
 ;;; Commentary:
 ;;
-;; Unfold CSS-selector-like expressions to markup. Intended to be used
+;; Unfold CSS-selector-like expressions to markup.  Intended to be used
 ;; with sgml-like languages; xml, html, xhtml, xsl, etc.
 ;;
-;; See `emmet-mode' for more information.
+;; See the function `emmet' and <https://emmet.io/> for more information.
 ;;
-;; Copy emmet-mode.el to your load-path and add to your .emacs:
+;; To install, Copy emmet.el to your load-path and add to your .emacs:
 ;;
-;;    (require 'emmet-mode)
+;;    (require 'emmet)
 ;;
 ;; Example setup:
 ;;
-;;    (add-to-list 'load-path "~/Emacs/emmet/")
-;;    (require 'emmet-mode)
+;;    (add-to-list 'load-path "~/path/to/emmet/")
+;;    (require 'emmet)
 ;;    (add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
 ;;    (add-hook 'html-mode-hook 'emmet-mode)
 ;;    (add-hook 'css-mode-hook  'emmet-mode)
@@ -53,16 +53,13 @@
 ;;
 ;; See ``Test cases'' section for a complete set of expression types.
 ;;
-;; If you are hacking on this project, eval (emmet-test-cases) to
-;; ensure that your changes have not broken anything. Feel free to add
-;; new test cases if you add new features.
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; History:
 ;;
-;; This is a fork of zencoding-mode to support Emmet's feature.
-;; zencoding-mode (https://github.com/rooney/zencoding)
+;; This is a fork of `emmet-mode' <https://github.com/smihica/emmet-mode>, which
+;; is itself a fork of `zencoding-mode' <https://github.com/rooney/zencoding> to
+;; support Emmet's feature.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
