@@ -1,10 +1,10 @@
-[Emmet](https://emmet.io/) describes itself as "a plugin for many popular text editors which greatly improves HTML & CSS workflow". `emmet-for-emacs` is an implementation of Emmet in Emacs. It is a fork of [`emmet-mode`](https://github.com/smihica/emmet-mode), which is itself a fork of [zencoding-mode](https://github.com/rooney/zencoding).
+[Emmet](https://emmet.io/) describes itself as "a plugin for many popular text editors which greatly improves HTML & CSS workflow". `emmet-for-emacs` is an implementation of Emmet in Emacs. It is a fork of [`emmet-mode`](https://github.com/smihica/emmet-mode), which is itself a fork of [`zencoding-mode`](https://github.com/rooney/zencoding).
 
 
 
 ## About zencoding-mode
 
-[zencoding-mode](https://github.com/rooney/zencoding) is a minor mode providing support for Zen Coding by producing HTML from CSS-like selectors. See [README](https://github.com/rooney/zencoding/blob/master/README.md)
+[`zencoding-mode`](https://github.com/rooney/zencoding) is a minor mode providing support for Zen Coding by producing HTML from CSS-like selectors. See [README](https://github.com/rooney/zencoding/blob/master/README.md)
 
 ## About Emmet
 
