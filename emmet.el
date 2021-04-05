@@ -949,8 +949,8 @@ This is the default directory for `preferences.json' and `snippets.json'.")
                        (cl-remove-duplicates
                         (append (cl-fifth first-tag-data)
                                 (cl-fifth tag-data))
-                        :test #'(lambda (p1 p2)
-                                  (eql (car p1) (car p2)))))
+                        :test (lambda (p1 p2)
+                                (eql (car p1) (car p2)))))
                  (setf (cl-sixth first-tag-data) (cl-sixth tag-data))
                  (setf (cdr rt) (concat (cdr rt) input))
                  rt))
@@ -1244,12 +1244,12 @@ This is the default directory for `preferences.json' and `snippets.json'.")
 
 (defun emmet-html-snippets-instantiate-lambda (src)
   (let ((lines (mapcar
-                #'(lambda (src)
-                    (if (string-match "^\\(.*\\)${child}\\(.*\\)$" src)
-                        (mapcar (lambda (i)
-                                  (match-string i src))
-                                '(1 2))
-                      (list src)))
+                (lambda (src)
+                  (if (string-match "^\\(.*\\)${child}\\(.*\\)$" src)
+                      (mapcar (lambda (i)
+                                (match-string i src))
+                              '(1 2))
+                    (list src)))
                 (split-string src "\n"))))
     (cl-labels
         ((iter
@@ -1627,7 +1627,7 @@ This is the default directory for `preferences.json' and `snippets.json'.")
                        (eql (aref color 0) (aref color 1))
                        (eql (aref color 2) (aref color 3))
                        (eql (aref color 4) (aref color 5)))
-                  (concat (mapcar #'(lambda (i) (aref color i)) '(0 2 4)))
+                  (concat (mapcar (lambda (i) (aref color i)) '(0 2 4)))
                 color))))))
       (if (< 0 (length (elt it 3)))
           (cons (gethash (elt it 3) emmet-css-color-trailing-aliases) input)
@@ -1790,53 +1790,53 @@ This is the default directory for `preferences.json' and `snippets.json'.")
 (defun emmet-css-transform-exprs (exprs)
   (string-join
    (mapcar
-    #'(lambda (expr)
-        (let*
-	    ((hash-map (if emmet-use-sass-syntax emmet-sass-snippets emmet-css-snippets))
-	     (basement
-	      (emmet-aif
-	       (or (gethash (car expr) hash-map) (gethash (car expr) emmet-css-snippets))
-	       (let ((set it) (fn nil) (unitlessp nil))
-		 (if (stringp set)
-		     (progn
-		       ;; new pattern
-		       ;; creating print function
-		       (setf fn (emmet-css-instantiate-lambda set))
-		       ;; get unitless or no
-		       (setf unitlessp
-			     (not (null (string-match
-					 emmet-css-unitless-properties-regex set))))
-		       ;; caching
-		       (puthash (car expr) (cons fn unitlessp) hash-map))
+    (lambda (expr)
+      (let*
+	  ((hash-map (if emmet-use-sass-syntax emmet-sass-snippets emmet-css-snippets))
+	   (basement
+	    (emmet-aif
+	     (or (gethash (car expr) hash-map) (gethash (car expr) emmet-css-snippets))
+	     (let ((set it) (fn nil) (unitlessp nil))
+	       (if (stringp set)
 		   (progn
-		     ;; cache hit.
-		     (setf fn (car set))
-		     (setf unitlessp (cdr set))))
-		 (apply fn
-			(mapcar
-			 #'(lambda (arg)
-			     (if (listp arg)
-				 (if unitlessp (car arg)
-				   (apply #'concat arg))
-			       arg))
-			 (cdddr expr))))
-	       (concat (car expr) ": "
-		       (string-join
-			(mapcar #'(lambda (arg)
-				    (if (listp arg) (apply #'concat arg) arg))
-				(cdddr expr)) " ")
-		       ";"))))
-          (let ((line
-                 (if (caddr expr)
-                     (concat (cl-subseq basement 0 -1) " !important;")
-                   basement)))
-	    ;; remove trailing semicolon while editing Sass files
-	    (if (and emmet-use-sass-syntax (equal ";" (cl-subseq line -1)))
-		(setq line (cl-subseq line 0 -1)))
-            (emmet-aif
-             (cadr expr)
-             (emmet-css-transform-vendor-prefixes line it)
-             line))))
+		     ;; new pattern
+		     ;; creating print function
+		     (setf fn (emmet-css-instantiate-lambda set))
+		     ;; get unitless or no
+		     (setf unitlessp
+			   (not (null (string-match
+				       emmet-css-unitless-properties-regex set))))
+		     ;; caching
+		     (puthash (car expr) (cons fn unitlessp) hash-map))
+		 (progn
+		   ;; cache hit.
+		   (setf fn (car set))
+		   (setf unitlessp (cdr set))))
+	       (apply fn
+		      (mapcar
+		       (lambda (arg)
+			 (if (listp arg)
+			     (if unitlessp (car arg)
+			       (apply #'concat arg))
+			   arg))
+		       (cdddr expr))))
+	     (concat (car expr) ": "
+		     (string-join
+		      (mapcar (lambda (arg)
+				(if (listp arg) (apply #'concat arg) arg))
+			      (cdddr expr)) " ")
+		     ";"))))
+        (let ((line
+               (if (caddr expr)
+                   (concat (cl-subseq basement 0 -1) " !important;")
+                 basement)))
+	  ;; remove trailing semicolon while editing Sass files
+	  (if (and emmet-use-sass-syntax (equal ";" (cl-subseq line -1)))
+	      (setq line (cl-subseq line 0 -1)))
+          (emmet-aif
+           (cadr expr)
+           (emmet-css-transform-vendor-prefixes line it)
+           line))))
     exprs)
    "\n"))
 
