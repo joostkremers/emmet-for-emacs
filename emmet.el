@@ -140,8 +140,8 @@ and leaving the point in place."
          (start (emmet-find-left-bound))
          (line (buffer-substring-no-properties start end))
          (expr (emmet-regex "\\([ \t]*\\)\\([^\n]+\\)" line 2)))
-    (if (first expr)
-        (list (first expr) start end))))
+    (if (cl-first expr)
+        (list (cl-first expr) start end))))
 
 (defun emmet-find-left-bound ()
   "Find the left bound of an emmet expr"
@@ -280,9 +280,9 @@ For more information see `emmet-mode'."
           (emmet-preview beg end))
       (let ((expr (emmet-expr-on-line)))
         (if expr
-            (let ((markup (emmet-transform (first expr))))
+            (let ((markup (emmet-transform (cl-first expr))))
               (when markup
-                (delete-region (second expr) (third expr))
+                (delete-region (cl-second expr) (cl-third expr))
                 (emmet-insert-and-flash markup)
                 (emmet-reposition-cursor expr))))))))
 
@@ -336,7 +336,7 @@ See also `emmet-expand-line'."
   (let* ((leaf-count 0)
          (emmet-leaf-function
           (lambda ()
-            (format "$%d" (incf leaf-count)))))
+            (format "$%d" (cl-incf leaf-count)))))
     (emmet-transform input)))
 
 ;;;###autoload
@@ -344,15 +344,15 @@ See also `emmet-expand-line'."
   (interactive)
   (let ((expr (emmet-expr-on-line)))
     (if expr
-        (let* ((markup (emmet-transform-yas (first expr)))
+        (let* ((markup (emmet-transform-yas (cl-first expr)))
                (filled (replace-regexp-in-string "><" ">\n<" markup)))
-          (delete-region (second expr) (third expr))
+          (delete-region (cl-second expr) (cl-third expr))
           (insert filled)
-          (indent-region (second expr) (point))
+          (indent-region (cl-second expr) (point))
           (if (fboundp 'yas/expand-snippet)
               (yas/expand-snippet
-               (buffer-substring (second expr) (point))
-               (second expr) (point)))))))
+               (buffer-substring (cl-second expr) (point))
+               (cl-second expr) (point)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Real-time preview
@@ -448,7 +448,7 @@ cursor position will be moved to after the first quote."
   :group 'emmet)
 
 (defun emmet-reposition-cursor (expr)
-  (let ((output-markup (buffer-substring-no-properties (second expr) (point))))
+  (let ((output-markup (buffer-substring-no-properties (cl-second expr) (point))))
     (when emmet-move-cursor-after-expanding
       (let ((p (point))
             (new-pos (if (emmet-html-text-p output-markup)
@@ -804,13 +804,13 @@ This is the default directory for `preferences.json' and `snippets.json'.")
    "\\(\\$+\\)" 2 "numbering, $"
    (let ((doller (elt it 1)))
      (emmet-pif (emmet-parse
-                     "@\\([0-9-][0-9]*\\)" 2 "numbering args"
-                     (let* ((args (read (elt it 1)))
-                            (direction  (not (or (eq '- args) (minusp args))))
-                            (base       (if (eq '- args) 1 (abs args))))
-                       `((n ,(length doller) ,direction ,base) . ,input)))
-                    it
-                    `((n ,(length doller) t 1) . ,input)))))
+                 "@\\([0-9-][0-9]*\\)" 2 "numbering args"
+                 (let* ((args (read (elt it 1)))
+                        (direction  (not (or (eq '- args) (cl-minusp args))))
+                        (base       (if (eq '- args) 1 (abs args))))
+                   `((n ,(length doller) ,direction ,base) . ,input)))
+                it
+                `((n ,(length doller) t 1) . ,input)))))
 
 (defun emmet-split-numbering-expressions (input)
   (cl-labels
@@ -832,50 +832,51 @@ This is the default directory for `preferences.json' and `snippets.json'.")
 
 (defun emmet-instantiate-numbering-expression (i lim exp)
   (cl-labels ((instantiate
-            (i lim exps)
-            (apply #'concat
-                   (mapcar
-                    (lambda (exp)
-                      (if (listp exp)
-                          (let ((digits (second exp))
-                                (direction (third exp))
-                                (base (fourth exp)))
-                            (let ((num (if direction (+ base i)
-                                         (- (+ lim (- base 1)) i))))
-                              (format (concat "%0" (format "%d" digits) "d") num)))
-                        exp)) exps)))
-           (search
-            (i lim exp)
-            (if (listp exp)
-                (if (eql (car exp) 'numberings)
-                    (instantiate i lim (cdr exp))
-                  ;; Should do like this for real searching.
-                  ;; But stack overflow occurs.
-                  ;; (cons (search-numberings i lim (car exp))
-                  ;;       (search-numberings i lim (cdr exp)))
-                  (mapcar (lambda (exp) (search i lim exp)) exp))
-              exp)))
+               (i lim exps)
+               (apply #'concat
+                      (mapcar
+                       (lambda (exp)
+                         (if (listp exp)
+                             (let ((digits (cl-second exp))
+                                   (direction (cl-third exp))
+                                   (base (cl-fourth exp)))
+                               (let ((num (if direction (+ base i)
+                                            (- (+ lim (- base 1)) i))))
+                                 (format (concat "%0" (format "%d" digits) "d") num)))
+                           exp)) exps)))
+              (search
+               (i lim exp)
+               (if (listp exp)
+                   (if (eql (car exp) 'numberings)
+                       (instantiate i lim (cdr exp))
+                     ;; Should do like this for real searching.
+                     ;; But stack overflow occurs.
+                     ;; (cons (search-numberings i lim (car exp))
+                     ;;       (search-numberings i lim (cdr exp)))
+                     (mapcar (lambda (exp) (search i lim exp)) exp))
+                 exp)))
     (search i lim exp)))
 
 (defun emmet-multiply-expression (multiplicand exp)
-  (loop for i to (- multiplicand 1) collect
-        (emmet-instantiate-numbering-expression i multiplicand exp)))
+  (cl-loop for i to (- multiplicand 1) collect
+           (emmet-instantiate-numbering-expression i multiplicand exp)))
 
 (defun emmet-multiplier (input)
   (emmet-pif (emmet-run emmet-pexpr
-                                it
-                                (emmet-run emmet-tag
-                                               it
-                                               (emmet-run emmet-text
-                                                              it
-                                                              '(error "expected *n multiplier"))))
-                 (let* ((expr (car it)) (input (cdr it))
-                        (multiplier expr))
-                   (emmet-parse "\\*\\([0-9]+\\)" 2 "*n where n is a number"
-                                    (let ((multiplicand (read (elt it 1))))
-                                      `((list ,(emmet-multiply-expression
-                                                multiplicand
-                                                multiplier)) . ,input))))))
+                        it
+                        (emmet-run emmet-tag
+                                   it
+                                   (emmet-run emmet-text
+                                              it
+                                              '(error "expected *n multiplier"))))
+             (let* ((expr (car it)) (input (cdr it))
+                    (multiplier expr))
+               (emmet-parse "\\*\\([0-9]+\\)" 2 "*n where n is a number"
+                            (let ((multiplicand (read (elt it 1))))
+                              `((list ,(emmet-multiply-expression
+                                        multiplicand
+                                        multiplier))
+                                . ,input))))))
 
 (defun emmet-tag (input)
   "Parse a tag."
@@ -885,22 +886,22 @@ This is the default directory for `preferences.json' and `snippets.json'.")
          (has-body? (cddr expr)))
      (emmet-pif
       (emmet-run emmet-identifier
-                     (emmet-tag-classes
-                      `(tag (,tagname ,has-body? ,(cddr expr))) input)
-                     (emmet-tag-classes
-                      `(tag (,tagname ,has-body? nil)) input))
+                 (emmet-tag-classes
+                  `(tag (,tagname ,has-body? ,(cddr expr))) input)
+                 (emmet-tag-classes
+                  `(tag (,tagname ,has-body? nil)) input))
       (let ((tag-data (cadar it)) (input (cdr it)))
         (emmet-pif (emmet-run
-                        emmet-properties
-                        (let ((props (cdr expr)))
-                          `((tag ,(append tag-data (list props))) . ,input))
-                        `((tag ,(append tag-data '(nil))) . ,input))
-                       (let ((expr (car it)) (input (cdr it)))
-                         (destructuring-bind (expr . input)
-                             (emmet-tag-text expr input)
-                           (or
-                            (emmet-expand-lorem expr input)
-                            (emmet-expand-tag-alias expr input))))))))
+                    emmet-properties
+                    (let ((props (cdr expr)))
+                      `((tag ,(append tag-data (list props))) . ,input))
+                    `((tag ,(append tag-data '(nil))) . ,input))
+                   (let ((expr (car it)) (input (cdr it)))
+                     (cl-destructuring-bind (expr . input)
+                         (emmet-tag-text expr input)
+                       (or
+                        (emmet-expand-lorem expr input)
+                        (emmet-expand-tag-alias expr input))))))))
    (emmet-default-tag input)))
 
 (defun emmet-get-first-tag (expr)
@@ -938,19 +939,19 @@ This is the default directory for `preferences.json' and `snippets.json'.")
          (prog1
              (let ((rt (copy-tree expr)))
                (let ((first-tag-data (cadr (emmet-get-first-tag rt))))
-                 (setf (second first-tag-data) (second tag-data))
-                 (setf (third first-tag-data)  (third tag-data))
-                 (setf (fourth first-tag-data)
+                 (setf (cl-second first-tag-data) (cl-second tag-data))
+                 (setf (cl-third first-tag-data)  (cl-third tag-data))
+                 (setf (cl-fourth first-tag-data)
                        (cl-remove-duplicates
-                        (append (fourth first-tag-data)
-                                (fourth tag-data)) :test #'string=))
-                 (setf (fifth first-tag-data)
+                        (append (cl-fourth first-tag-data)
+                                (cl-fourth tag-data)) :test #'string=))
+                 (setf (cl-fifth first-tag-data)
                        (cl-remove-duplicates
-                        (append (fifth first-tag-data)
-                                (fifth tag-data))
+                        (append (cl-fifth first-tag-data)
+                                (cl-fifth tag-data))
                         :test #'(lambda (p1 p2)
                                   (eql (car p1) (car p2)))))
-                 (setf (sixth first-tag-data) (sixth tag-data))
+                 (setf (cl-sixth first-tag-data) (cl-sixth tag-data))
                  (setf (cdr rt) (concat (cdr rt) input))
                  rt))
            (puthash tag-name expr emmet-tag-aliases-table)))
@@ -1049,14 +1050,14 @@ This is the default directory for `preferences.json' and `snippets.json'.")
   "Parse an tag>e expression, where `n' is an tag and `e' is any
    expression."
   (cl-labels
-    ((listing (parents child input)
-        (let ((len (length parents)))
-          `((list ,(map 'list
-                        (lambda (parent i)
-                          `(parent-child ,parent
-                                         ,(emmet-instantiate-numbering-expression i len child)))
-                        parents
-                        (loop for i to (- len 1) collect i))) . ,input))))
+      ((listing (parents child input)
+                (let ((len (length parents)))
+                  `((list ,(cl-map 'list
+                                   (lambda (parent i)
+                                     `(parent-child ,parent
+                                                    ,(emmet-instantiate-numbering-expression i len child)))
+                                   parents
+                                   (cl-loop for i to (- len 1) collect i))) . ,input))))
     (emmet-run
      emmet-multiplier
      (let* ((items (cadr expr))
@@ -1121,12 +1122,12 @@ This is the default directory for `preferences.json' and `snippets.json'.")
   "Parse an e+ expression, where e is an expandable tag"
   (let* ((parent-tag (car (cadr parent))))
     (setf (caadr parent) (concat parent-tag "+"))
-    (destructuring-bind (parent . input)
+    (cl-destructuring-bind (parent . input)
         (emmet-expand-tag-alias parent input)
       (emmet-pif (emmet-parse "+\\(.*\\)" 1 "+expr"
-                                      (emmet-subexpr (elt it 1)))
-                     `((sibling ,parent ,@it))
-                     `(,parent . ,input)))))
+                              (emmet-subexpr (elt it 1)))
+                 `((sibling ,parent ,@it))
+                 `(,parent . ,input)))))
 
 (defun emmet-name (input)
   "Parse a class or identifier name, e.g. news, footer, mainimage"
@@ -1230,14 +1231,14 @@ This is the default directory for `preferences.json' and `snippets.json'.")
 
 (defun emmet-hash-to-list (hash &optional proc)
   (unless proc (setq proc #'cons))
-  (loop for key being the hash-keys of hash using (hash-values val)
-        collect (funcall proc key val)))
+  (cl-loop for key being the hash-keys of hash using (hash-values val)
+           collect (funcall proc key val)))
 
 (defun emmet-merge-tag-props (default-table tag-props)
   (if default-table
       (let ((tbl (copy-hash-table default-table)))
-        (loop for prop in tag-props do
-              (puthash (symbol-name (car prop)) (cadr prop) tbl))
+        (cl-loop for prop in tag-props do
+                 (puthash (symbol-name (car prop)) (cadr prop) tbl))
         (emmet-hash-to-list tbl 'list))
     tag-props))
 
@@ -1605,8 +1606,8 @@ This is the default directory for `preferences.json' and `snippets.json'.")
              (cond ((= l 1) (concat (make-list 6 (string-to-char n))))
                    ((= l 2) (concat n n n))
                    ((= l 3) (concat
-                             (loop for c in (string-to-list n)
-                                   append (list c c))))
+                             (cl-loop for c in (string-to-list n)
+                                      append (list c c))))
                    (t (concat n n)))
              0 6))))
      (cons
@@ -1654,13 +1655,13 @@ This is the default directory for `preferences.json' and `snippets.json'.")
 (defun emmet-css-parse-args (args)
   (when args
     (let ((rt nil))
-      (loop
+      (cl-loop
        (emmet-pif
         (emmet-css-parse-arg args)
-        (loop for i on it do (push (car i) rt)
-              while (consp (cdr i))
-              finally (setq args (cdr i)))
-        (return (nreverse rt)))))))
+        (cl-loop for i on it do (push (car i) rt)
+                 while (consp (cdr i))
+                 finally (setq args (cdr i)))
+        (cl-return (nreverse rt)))))))
 
 (defun emmet-css-split-args (exp)
   (emmet-aif
@@ -1679,9 +1680,9 @@ This is the default directory for `preferences.json' and `snippets.json'.")
 
 (defun emmet-css-subexpr (exp)
   (let* ((importantp (emmet-css-important-p exp)))
-    (destructuring-bind (exp vp)
+    (cl-destructuring-bind (exp vp)
         (emmet-css-split-vendor-prefixes exp)
-      (destructuring-bind (key args)
+      (cl-destructuring-bind (key args)
           (emmet-css-split-args (if importantp (cl-subseq exp 0 -1) exp))
         `(,key ,vp
                ,importantp
@@ -1690,9 +1691,9 @@ This is the default directory for `preferences.json' and `snippets.json'.")
 (defun emmet-css-toknize (str)
   (let* ((i (split-string str "+"))
          (rt nil))
-    (loop
-     (let ((f (first i))
-           (s (second i)))
+    (cl-loop
+     (let ((f (cl-first i))
+           (s (cl-second i)))
        (if f
            (if (and s (or (string= s "")
                           (string-match "^\\(?:[ #0-9$]\\|-[0-9]\\)" s)))
@@ -1702,7 +1703,7 @@ This is the default directory for `preferences.json' and `snippets.json'.")
              (progn
                (setf rt (cons f rt))
                (setf i (cdr i))))
-         (return (nreverse rt)))))))
+         (cl-return (nreverse rt)))))))
 
 (defun emmet-css-expr (input)
   (mapcar #'emmet-css-subexpr
@@ -1736,25 +1737,25 @@ This is the default directory for `preferences.json' and `snippets.json'.")
             (split-string-to-body
              (str args-sym)
              (let ((rt '(concat)) (idx-max 0))
-               (loop for i from 0 to 255 do
-                     (emmet-aif
-                      (string-match "\\(?:|\\|${\\(?:\\([0-9]\\)\\|\\)\\(?::\\(.+?\\)\\|\\)}\\)" str)
-                      (destructuring-bind (mat idx def)
-                          (mapcar (lambda (ref) (match-string ref str)) '(0 1 2))
-                        (setf rt
-                              `((or
-                                 (nth ,(let ((cur-idx (if idx (1- (string-to-number idx)) i)))
-                                         (setf idx-max (max cur-idx idx-max)))
-                                      ,args-sym)
-                                 ,(or def ""))
-                                ,(substring str 0 it) ;; ordered to reverse
-                                ,@rt))
-                        (setf str (substring str (+ it (length mat)))))
-                      ;; don't use nreverse. cause bug in emacs-lisp.
-                      (return (cons idx-max (reverse (cons str rt)))))))))
+               (cl-loop for i from 0 to 255 do
+                        (emmet-aif
+                         (string-match "\\(?:|\\|${\\(?:\\([0-9]\\)\\|\\)\\(?::\\(.+?\\)\\|\\)}\\)" str)
+                         (cl-destructuring-bind (mat idx def)
+                             (mapcar (lambda (ref) (match-string ref str)) '(0 1 2))
+                           (setf rt
+                                 `((or
+                                    (nth ,(let ((cur-idx (if idx (1- (string-to-number idx)) i)))
+                                            (setf idx-max (max cur-idx idx-max)))
+                                         ,args-sym)
+                                    ,(or def ""))
+                                   ,(substring str 0 it) ;; ordered to reverse
+                                   ,@rt))
+                           (setf str (substring str (+ it (length mat)))))
+                         ;; don't use nreverse. cause bug in emacs-lisp.
+                         (cl-return (cons idx-max (reverse (cons str rt)))))))))
     (let ((args (gensym))
           (str  (insert-space-between-name-and-body str)))
-      (destructuring-bind (idx-max . body) (split-string-to-body str args)
+      (cl-destructuring-bind (idx-max . body) (split-string-to-body str args)
         (eval
          `(lambda (&rest ,args)
             (progn
